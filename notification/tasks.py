@@ -1,19 +1,22 @@
 from celery import shared_task
 from django.core.mail import send_mail
 from vk_api import VkApi, ApiError
-from django.contrib.auth.models import User
+
+from authentication.models import User
+from notification.models import Notification
+
 
 @shared_task
 def send_notification(user_id, message):
     try:
-        # VK API 
-        vk_session = VkApi(token='vk1.a.KP03hXYOXjKiSYrNgUPfF0NhckOe4fvf2KeJsffE9tpy-tBw8gir9x69wbM7dvNRUtWSxKZZlJp006GLhWK9w3_pciISOb8a-xwO8aO7pgbGwvHyzD2JC1haEGN2ys9NkAeQ00pN45Rcs8H7xFKKX6RrXJROPu6SE82qy35nLT92TC0ozlTdamDCSXklEOanqCwQRyXzxsK_7CG-gGg5YQ')
-        vk = vk_session.get_api()
-        vk.messages.send(
-            user_id=user_id,
-            message=message,
-            random_id=0  
-        )
+        # # VK API
+        # vk_session = VkApi(token='vk1.a.KP03hXYOXjKiSYrNgUPfF0NhckOe4fvf2KeJsffE9tpy-tBw8gir9x69wbM7dvNRUtWSxKZZlJp006GLhWK9w3_pciISOb8a-xwO8aO7pgbGwvHyzD2JC1haEGN2ys9NkAeQ00pN45Rcs8H7xFKKX6RrXJROPu6SE82qy35nLT92TC0ozlTdamDCSXklEOanqCwQRyXzxsK_7CG-gGg5YQ')
+        # vk = vk_session.get_api()
+        # vk.messages.send(
+        #     user_id=user_id,
+        #     message=message,
+        #     random_id=0
+        # )
 
         # Email notification
         send_mail(
@@ -24,12 +27,11 @@ def send_notification(user_id, message):
             fail_silently=False,
         )
 
-        # User profile with the notification
         try:
             user = User.objects.get(id=user_id)
-            user.profile.notification = message
-            user.profile.save()
-            print(f"Профиль пользователя {user.username} успешно обновлен с уведомлением: {message}")
+            notification = Notification(user=user, message=message)
+            notification.save()
+            print(f"Профиль пользователя {user.email} успешно обновлен с уведомлением: {message}")
         except User.DoesNotExist:
             print(f"Пользователь с id={user_id} не найден.")
         except Exception as e:

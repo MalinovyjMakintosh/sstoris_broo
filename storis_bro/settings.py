@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
+from datetime import timedelta
 from pathlib import Path
 
 
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_simplejwt',
     'social_django',
     'django_extensions',
     'corsheaders',
@@ -97,15 +99,12 @@ WSGI_APPLICATION = 'storis_bro.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'postgres',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
         'HOST': 'localhost',
         'PORT': '5432',
-        'OPTIONS': {
-            'client_encoding': 'latin-1',  # Изменено на 'latin-1'
-        },
     }
 }
 
@@ -140,19 +139,12 @@ CSRF_COOKIE_SECURE = False
 
 # настройки почты
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = '@gmail.com'
-EMAIL_HOST_PASSWORD = ''
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST_USER = '@gmail.com'
+# EMAIL_HOST_PASSWORD = ''
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
 
-#настройки уведомлений
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC'
 
 # настройки vk
 SOCIAL_AUTH_VK_OAUTH2_KEY = ''
@@ -161,7 +153,6 @@ SOCIAL_AUTH_VK_OAUTH2_SCOPE = ['email']
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 
-AUTH_USER_MODEL = 'authentication.User'
 
 
 REST_FRAMEWORK = {
@@ -169,8 +160,16 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Время жизни access token
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),  # Время жизни refresh token
+    'SLIDING_TOKEN_LIFETIME': timedelta(days=7),  # Время жизни sliding token
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=14),  # Время жизни refresh sliding token
 }
 
 SPECTACULAR_SETTINGS = {
@@ -181,6 +180,12 @@ SPECTACULAR_SETTINGS = {
         "swagger": "2.0",
     },
 }
+
+
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+REDIS_DB = 0
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -202,6 +207,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+AUTH_USER_MODEL = 'authentication.User'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
