@@ -9,14 +9,17 @@ from notification.models import Notification
 @shared_task
 def send_notification(user_id, message):
     try:
-        # # VK API
-        # vk_session = VkApi(token='vk1.a.KP03hXYOXjKiSYrNgUPfF0NhckOe4fvf2KeJsffE9tpy-tBw8gir9x69wbM7dvNRUtWSxKZZlJp006GLhWK9w3_pciISOb8a-xwO8aO7pgbGwvHyzD2JC1haEGN2ys9NkAeQ00pN45Rcs8H7xFKKX6RrXJROPu6SE82qy35nLT92TC0ozlTdamDCSXklEOanqCwQRyXzxsK_7CG-gGg5YQ')
-        # vk = vk_session.get_api()
-        # vk.messages.send(
-        #     user_id=user_id,
-        #     message=message,
-        #     random_id=0
-        # )
+        redirect_uri_with_token = 'https://example.com/callback#access_token=ваш_токен_доступа&expires_in=86400&user_id=ваш_идентификатор_пользователя&state=your_state'
+        parsed_url = urlparse(redirect_uri_with_token)
+        token = parse_qs(parsed_url.fragment)['access_token'][0]
+
+        vk_session = vk_api.VkApi(token=token)
+        vk = vk_session.get_api()
+
+
+        access = vk.messages.allowMessagesFromGroup(
+            group_id=group_id,
+            )
 
         # Email notification
         send_mail(
