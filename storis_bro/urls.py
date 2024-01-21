@@ -17,12 +17,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from ref.views import referral_view, register_referral
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(('authentication.urls', 'authentication'), namespace='authentication')),
     path('notification/', include(('notification.urls', 'notification'), namespace='notification')),
-
+    path('profiles/update/', include(('profiles.urls', 'profiles'), namespace='profiles')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+
+    path('referral/<int:referral_number>/', referral_view, name='referral_view'),
+    path('register_referral/', register_referral, name='register_referral'),
 ]

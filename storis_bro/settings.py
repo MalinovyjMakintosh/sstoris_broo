@@ -58,7 +58,10 @@ INSTALLED_APPS = [
 
     'authentication',
     'confirmation',
-    'notification'
+    'notification',
+    'ref',
+    'djoser',
+    'profiles',
 ]
 
 MIDDLEWARE = [
